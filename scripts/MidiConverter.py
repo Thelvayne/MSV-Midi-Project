@@ -6,6 +6,7 @@ import mido
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
 
+file = mido.MidiFile("lavandia.mid")
 
 
 if available_ports:
