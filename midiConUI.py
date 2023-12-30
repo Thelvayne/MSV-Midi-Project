@@ -20,7 +20,19 @@ MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT))
 # All UI Components
 LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),(50,50)),
                                               text="Load MIDI-File",
-                                              manager=MANAGER)
+                                              manager=MANAGER,
+                                              anchors={"left":"left",
+                                                       "top":"top"})
+
+SYSTEMCOLUMN = pygame_gui.elements.UIPanel(pygame.Rect((10,60),(WIDTH-20,90)),
+                                           manager=None,
+                                           anchors={"left":"left","top":"top"})
+
+ADDCOLUMNBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((WIDTH/2,180),(50,50)),
+                                              text="+",
+                                              manager=MANAGER,
+                                              anchors={"left":"left",
+                                                       "top":"top"})
 
 def updateDisplay():
     UI_REFRESH_RATE = CLOCK.tick(60) / 1000
@@ -38,7 +50,8 @@ def app():
             if event.type == pygame.QUIT:
                 exitApp()
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
-                print("LOAD MIDI FILE")
+                import MidiFileLoader
+                MIDIFILE = MidiFileLoader.loadMidiFile()
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
