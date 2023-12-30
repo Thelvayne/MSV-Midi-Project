@@ -52,6 +52,7 @@ def app():
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
                 import MidiFileLoader
                 MIDIFILE = MidiFileLoader.loadMidiFile()
+                print(MIDIFILE)
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
