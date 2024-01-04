@@ -15,10 +15,17 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 
 # Initiating alle UI Managing Tools
 CLOCK = pygame.time.Clock() # --> This will be relevant for Playback speed and could cause conflicts with midi tempo/bpm
-MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT))
+MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT), 'theme.json')
 
 # All UI Components
-LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),(50,50)),
+MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((200,10),(-1,-1)),
+                                           text="",
+                                           visible=1,
+                                           manager=MANAGER,
+                                           anchors={"left":"left",
+                                                    "top":"top"})
+
+LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),(-1,-1)),
                                               text="Load MIDI-File",
                                               manager=MANAGER,
                                               anchors={"left":"left",
@@ -43,7 +50,7 @@ def updateDisplay():
 def exitApp():
     pygame.quit()
     sys.exit()
-    
+
 def app():
     while True:
         for event in pygame.event.get():
@@ -53,6 +60,7 @@ def app():
                 import MidiFileLoader
                 MIDIFILE = MidiFileLoader.loadMidiFile()
                 print(MIDIFILE)
+                MIDIFILENAME.set_text(MIDIFILE.filename)
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
