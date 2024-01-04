@@ -50,9 +50,14 @@ def app():
             if event.type == pygame.QUIT:
                 exitApp()
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
-                import MidiFileLoader
+                import MidiFileLoader,Partiture
+                from mido import Message,MetaMessage
                 MIDIFILE = MidiFileLoader.loadMidiFile()
-                print(MIDIFILE)
+                PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
+                MIDIFILE.print_tracks()
+                print(f"LENDGHT: {MIDIFILE.length}")
+                x = MIDIFILE.tracks[1]
+                print(type(x[0]))
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
