@@ -31,9 +31,9 @@ LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),
                                               anchors={"left":"left",
                                                        "top":"top"})
 
-SYSTEMCOLUMN = pygame_gui.elements.UIPanel(pygame.Rect((10,60),(WIDTH-20,90)),
-                                           manager=None,
-                                           anchors={"left":"left","top":"top"})
+#SYSTEMCOLUMN = pygame_gui.elements.UIPanel(pygame.Rect((10,60),(WIDTH-20,90)),
+ #                                          manager=None,
+  #                                         anchors={"left":"left","top":"top"})
 
 ADDCOLUMNBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((WIDTH/2,180),(50,50)),
                                               text="+",
@@ -74,6 +74,25 @@ def app():
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
                 midiToWav.convertMidToWav(MIDIFILE)
+
+
+                # dynamic creation for UIPanels to show different channels
+                i = 0
+                for tracks in MIDIFILE.tracks:
+                    name = "SYSTEMCOLUMN" + str(i)
+                    name = pygame_gui.elements.UIPanel(pygame.Rect((10,60+i*90),(WIDTH-20,90)),
+                                                       manager=MANAGER,
+                                                       anchors={"left":"left","top":"top"})
+                    i += 1
+                    ADDCOLUMNBUTTON.set_relative_position((WIDTH/2, name.relative_rect.bottom + 10))
+                    if i == len(MIDIFILE.tracks) - 1:
+                        break
+                
+                # get loaded file name
+                FILENAME = MIDIFILE.filename
+                POSITIONSLASH = FILENAME.rfind("\\")
+                MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
+                
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
