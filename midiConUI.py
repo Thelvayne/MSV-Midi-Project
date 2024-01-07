@@ -41,6 +41,11 @@ ADDCOLUMNBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((WIDTH/
                                               anchors={"left":"left",
                                                        "top":"top"})
 
+CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160,10),(-1,-1)),
+                                                  text="Convert .mid to .wav",
+                                                  manager=MANAGER,
+                                                  anchors={"left":"left","top":"top"})
+
 def updateDisplay():
     UI_REFRESH_RATE = CLOCK.tick(60) / 1000
     MANAGER.update(UI_REFRESH_RATE)
@@ -66,6 +71,9 @@ def app():
                 x = MIDIFILE.tracks[1]
                 print(type(x[0]))
                 MIDIFILENAME.set_text(MIDIFILE.filename)
+            if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
+                import midiToWav
+                midiToWav.convertMidToWav(MIDIFILE)
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))

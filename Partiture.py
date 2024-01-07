@@ -8,8 +8,10 @@
 # Tonartanzeige
 # Zeitanzeige
 
-import mido
+import mido, pydub
 from mido import Message,MetaMessage
+
+
 
 class Partiture():
     
