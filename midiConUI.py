@@ -18,13 +18,6 @@ CLOCK = pygame.time.Clock() # --> This will be relevant for Playback speed and c
 MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT), 'theme.json')
 
 # All UI Components
-MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((200,10),(-1,-1)),
-                                           text="",
-                                           visible=1,
-                                           manager=MANAGER,
-                                           anchors={"left":"left",
-                                                    "top":"top"})
-
 LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),(-1,-1)),
                                               text="Load MIDI-File",
                                               manager=MANAGER,
@@ -45,6 +38,13 @@ CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160
                                                   text="Convert .mid to .wav",
                                                   manager=MANAGER,
                                                   anchors={"left":"left","top":"top"})
+
+MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((CONVERTTOWAVBUTTON.relative_rect.right + 10,10),(-1,-1)),
+                                           text="",
+                                           visible=1,
+                                           manager=MANAGER,
+                                           anchors={"left":"left",
+                                                    "top":"top"})
 
 def updateDisplay():
     UI_REFRESH_RATE = CLOCK.tick(60) / 1000
@@ -71,10 +71,6 @@ def app():
                 x = MIDIFILE.tracks[1]
                 print(type(x[0]))
                 MIDIFILENAME.set_text(MIDIFILE.filename)
-            if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
-                import midiToWav
-                midiToWav.convertMidToWav(MIDIFILE)
-
 
                 # dynamic creation for UIPanels to show different channels
                 i = 0
@@ -92,7 +88,12 @@ def app():
                 FILENAME = MIDIFILE.filename
                 POSITIONSLASH = FILENAME.rfind("\\")
                 MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
+
                 
+            if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
+                import midiToWav
+                midiToWav.convertMidToWav(MIDIFILE)
+     
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
