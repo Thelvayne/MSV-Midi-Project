@@ -56,39 +56,95 @@ def exitApp():
     pygame.quit()
     sys.exit()
 
+LASTCREATEDPANELNUMBER = -1
+def setLastCreatedPanelNumber(number):
+    global LASTCREATEDPANELNUMBER
+    LASTCREATEDPANELNUMBER = number
+
+def createUIPanels(filetracks):
+    i = 0
+    for tracks in filetracks:
+        SCREEN.fill(pygame.Color("black"), (ADDCOLUMNBUTTON.relative_rect.left, 
+                                            ADDCOLUMNBUTTON.relative_rect.top, 
+                                            ADDCOLUMNBUTTON.relative_rect.right - MIDIFILENAME.relative_rect.left, 
+                                            ADDCOLUMNBUTTON.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
+
+        name = "SYSTEMCOLUMN" + str(i)
+        name = pygame_gui.elements.UIPanel(pygame.Rect((10,60+i*90),(WIDTH-20,90)),
+            manager=MANAGER,
+            object_id=name,
+            anchors={"left":"left","top":"top"})
+        ADDCOLUMNBUTTON.set_relative_position((WIDTH/2, name.relative_rect.bottom + 10))
+        setLastCreatedPanelNumber(i)
+        i += 1
+        if i == len(filetracks) - 1:
+            break
+
+def getPanel(number):
+    Panel = "SYSTEMCOLUMN" + str(number)
+    for element in MANAGER.get_root_container().elements:
+        if isinstance(element, pygame_gui.elements.UIPanel):
+            if element.object_ids[0] == Panel:
+                return element
+
+
+def removeOldUIElements():
+    # 'löscht' alte Namen
+    
+    SCREEN.fill(pygame.Color("black"), (MIDIFILENAME.relative_rect.left, 
+                                        MIDIFILENAME.relative_rect.top, 
+                                        MIDIFILENAME.relative_rect.right - MIDIFILENAME.relative_rect.left, 
+                                        MIDIFILENAME.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
+    # 'löscht' alte Panels
+    global LASTCREATEDPANELNUMBER
+    if LASTCREATEDPANELNUMBER >= 0:
+        i = 0
+        while i <= LASTCREATEDPANELNUMBER:
+            panel = getPanel(i)
+            paneltop = panel.relative_rect.top
+            panelbottem = panel.relative_rect.bottom
+            panelleft = panel.relative_rect.left
+            panelright = panel.relative_rect.right
+            if panel != None:
+                panel.kill()
+            SCREEN.fill(pygame.Color('black'), (panelleft,
+                                                paneltop,
+                                                panelright - panelleft,
+                                                panelbottem - paneltop))
+            i += 1
+
+    # verschiebt +-Button
+    ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
+
 def app():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exitApp()
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
+                
                 import MidiFileLoader,Partiture
                 from mido import Message,MetaMessage
+
+                removeOldUIElements()
+
                 MIDIFILE = MidiFileLoader.loadMidiFile()
                 PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                 MIDIFILE.print_tracks()
+                
+                # console output
                 print(f"LENDGHT: {MIDIFILE.length}")
                 x = MIDIFILE.tracks[1]
                 print(type(x[0]))
-                MIDIFILENAME.set_text(MIDIFILE.filename)
 
-                # dynamic creation for UIPanels to show different channels
-                i = 0
-                for tracks in MIDIFILE.tracks:
-                    name = "SYSTEMCOLUMN" + str(i)
-                    name = pygame_gui.elements.UIPanel(pygame.Rect((10,60+i*90),(WIDTH-20,90)),
-                                                       manager=MANAGER,
-                                                       anchors={"left":"left","top":"top"})
-                    i += 1
-                    ADDCOLUMNBUTTON.set_relative_position((WIDTH/2, name.relative_rect.bottom + 10))
-                    if i == len(MIDIFILE.tracks) - 1:
-                        break
-                
                 # get loaded file name
                 FILENAME = MIDIFILE.filename
                 POSITIONSLASH = FILENAME.rfind("\\")
                 MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
 
+                # dynamic creation for UIPanels to show different channels
+                createUIPanels(MIDIFILE.tracks)
+                
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
