@@ -39,6 +39,8 @@ CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160
                                                   manager=MANAGER,
                                                   anchors={"left":"left","top":"top"})
 
+MIDIFILE = None
+
 MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((CONVERTTOWAVBUTTON.relative_rect.right + 10,10),(-1,-1)),
                                            text="",
                                            visible=1,
@@ -101,22 +103,28 @@ def removeOldUIElements():
         i = 0
         while i <= LASTCREATEDPANELNUMBER:
             panel = getPanel(i)
-            paneltop = panel.relative_rect.top
-            panelbottem = panel.relative_rect.bottom
-            panelleft = panel.relative_rect.left
-            panelright = panel.relative_rect.right
             if panel != None:
+                paneltop = panel.relative_rect.top
+                panelbottem = panel.relative_rect.bottom
+                panelleft = panel.relative_rect.left
+                panelright = panel.relative_rect.right
                 panel.kill()
-            SCREEN.fill(pygame.Color('black'), (panelleft,
+                SCREEN.fill(pygame.Color('black'), (panelleft,
                                                 paneltop,
                                                 panelright - panelleft,
                                                 panelbottem - paneltop))
             i += 1
 
     # verschiebt +-Button
+    SCREEN.fill(pygame.Color("black"), (ADDCOLUMNBUTTON.relative_rect.left, 
+                                    ADDCOLUMNBUTTON.relative_rect.top, 
+                                    ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left, 
+                                    ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
     ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
 
 def app():
+    MIDIFILE=None
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -129,26 +137,27 @@ def app():
                 removeOldUIElements()
 
                 MIDIFILE = MidiFileLoader.loadMidiFile()
-                PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
-                MIDIFILE.print_tracks()
-                
-                # console output
-                print(f"LENDGHT: {MIDIFILE.length}")
-                x = MIDIFILE.tracks[1]
-                print(type(x[0]))
+                #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
+                if MIDIFILE is not None:
+                    MIDIFILE.print_tracks()
 
-                # get loaded file name
-                FILENAME = MIDIFILE.filename
-                POSITIONSLASH = FILENAME.rfind("\\")
-                MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
+                    # get loaded file name
+                    FILENAME = MIDIFILE.filename
+                    POSITIONSLASH = FILENAME.rfind("\\")
+                    MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
 
-                # dynamic creation for UIPanels to show different channels
-                createUIPanels(MIDIFILE.tracks)
+                    # dynamic creation for UIPanels to show different channels
+                    createUIPanels(MIDIFILE.tracks)
+                else: MIDIFILENAME.set_text(f"File not found or cancelled")
                 
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
-                midiToWav.convertMidToWav(MIDIFILE)
+                if MIDIFILE is not None:
+                    midiToWav.convertMidToWav(MIDIFILE)
+                else:
+                    MIDIFILENAME.rebuild()
+                    MIDIFILENAME.set_text(f"Cannot convert because no MidiFile is loaded!")
      
             MANAGER.process_events(event)
         updateDisplay()            
