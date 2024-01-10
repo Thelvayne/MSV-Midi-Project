@@ -11,8 +11,6 @@
 import mido, pydub
 from mido import Message,MetaMessage
 
-
-
 class Partiture():
     
     def __init__(self,midifile:mido.MidiFile):

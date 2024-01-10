@@ -39,6 +39,8 @@ CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160
                                                   manager=MANAGER,
                                                   anchors={"left":"left","top":"top"})
 
+MIDIFILE = None
+
 MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((CONVERTTOWAVBUTTON.relative_rect.right + 10,10),(-1,-1)),
                                            text="",
                                            visible=1,
@@ -116,6 +118,8 @@ def removeOldUIElements():
     ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
 
 def app():
+    MIDIFILE=None
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -126,15 +130,9 @@ def app():
                 from mido import Message,MetaMessage
 
                 MIDIFILE = MidiFileLoader.loadMidiFile()
+                #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                 if MIDIFILE is not None:
-                    PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                     MIDIFILE.print_tracks()
-                    removeOldUIElements()
-
-                    # console output
-                    print(f"LENDGHT: {MIDIFILE.length}")
-                    x = MIDIFILE.tracks[1]
-                    print(type(x[0]))
 
                     # get loaded file name
                     FILENAME = MIDIFILE.filename
@@ -143,10 +141,15 @@ def app():
 
                     # dynamic creation for UIPanels to show different channels
                     createUIPanels(MIDIFILE.tracks)
+                else: MIDIFILENAME.set_text(f"File not found or cancelled")
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
-                midiToWav.convertMidToWav(MIDIFILE)
+                if MIDIFILE is not None:
+                    midiToWav.convertMidToWav(MIDIFILE)
+                else:
+                    MIDIFILENAME.rebuild()
+                    MIDIFILENAME.set_text(f"Cannot convert because no MidiFile is loaded!")
      
             MANAGER.process_events(event)
         updateDisplay()            
