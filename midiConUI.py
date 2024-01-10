@@ -89,31 +89,30 @@ def getPanel(number):
 
 
 def removeOldUIElements():
-    # 'löscht' alte Namen
-    
+    # 'löscht' alten Filename
     SCREEN.fill(pygame.Color("black"), (MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.top, 
                                         MIDIFILENAME.relative_rect.right - MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
-    # 'löscht' alte Panels
+    # löscht alte Panels
     global LASTCREATEDPANELNUMBER
     if LASTCREATEDPANELNUMBER >= 0:
         i = 0
         while i <= LASTCREATEDPANELNUMBER:
             panel = getPanel(i)
-            paneltop = panel.relative_rect.top
-            panelbottem = panel.relative_rect.bottom
-            panelleft = panel.relative_rect.left
-            panelright = panel.relative_rect.right
             if panel != None:
                 panel.kill()
-            SCREEN.fill(pygame.Color('black'), (panelleft,
-                                                paneltop,
-                                                panelright - panelleft,
-                                                panelbottem - paneltop))
+                SCREEN.fill(pygame.Color('black'), (panel.relative_rect.left,
+                                                panel.relative_rect.top,
+                                                panel.relative_rect.right - panel.relative_rect.left,
+                                                panel.relative_rect.bottom - panel.relative_rect.top))
             i += 1
 
     # verschiebt +-Button
+    SCREEN.fill(pygame.Color('black'), (ADDCOLUMNBUTTON.relative_rect.left,
+                                        ADDCOLUMNBUTTON.relative_rect.top,
+                                        ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left,
+                                        ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
     ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
 
 def app():
@@ -126,25 +125,24 @@ def app():
                 import MidiFileLoader,Partiture
                 from mido import Message,MetaMessage
 
-                removeOldUIElements()
-
                 MIDIFILE = MidiFileLoader.loadMidiFile()
-                PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
-                MIDIFILE.print_tracks()
-                
-                # console output
-                print(f"LENDGHT: {MIDIFILE.length}")
-                x = MIDIFILE.tracks[1]
-                print(type(x[0]))
+                if MIDIFILE is not None:
+                    PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
+                    MIDIFILE.print_tracks()
+                    removeOldUIElements()
 
-                # get loaded file name
-                FILENAME = MIDIFILE.filename
-                POSITIONSLASH = FILENAME.rfind("\\")
-                MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
+                    # console output
+                    print(f"LENDGHT: {MIDIFILE.length}")
+                    x = MIDIFILE.tracks[1]
+                    print(type(x[0]))
 
-                # dynamic creation for UIPanels to show different channels
-                createUIPanels(MIDIFILE.tracks)
-                
+                    # get loaded file name
+                    FILENAME = MIDIFILE.filename
+                    POSITIONSLASH = FILENAME.rfind("\\")
+                    MIDIFILENAME.set_text(FILENAME[POSITIONSLASH+1:])
+
+                    # dynamic creation for UIPanels to show different channels
+                    createUIPanels(MIDIFILE.tracks)
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
