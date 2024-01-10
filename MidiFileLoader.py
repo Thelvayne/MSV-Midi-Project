@@ -16,5 +16,9 @@ def loadMidiFile():
     file_dialog:OpenFileDialog = OpenFileDialog()
     file_dialog.Filter = "MIDI files (*.mid)|*.mid"
     file_dialog.FilterIndex = 2
-    file_dialog.ShowDialog()  
-    return mido.MidiFile(file_dialog.FileName)
+    file_dialog.ShowDialog()
+    filename = file_dialog.FileName
+    if filename != "":
+        midifile = mido.MidiFile(file_dialog.FileName)
+        if midifile is not None:
+            return midifile
