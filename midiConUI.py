@@ -89,37 +89,36 @@ def getPanel(number):
             if element.object_ids[0] == Panel:
                 return element
 
-
-def removeOldUIElements():
-    # 'löscht' alte Namen
-    
+def removeLabeltext():
+    # 'löscht' Labeltext
     SCREEN.fill(pygame.Color("black"), (MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.top, 
                                         MIDIFILENAME.relative_rect.right - MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
-    # 'löscht' alte Panels
+
+def removeOldUIElements():
+    
+    removeLabeltext()
+
+    # löscht alte Panels
     global LASTCREATEDPANELNUMBER
     if LASTCREATEDPANELNUMBER >= 0:
         i = 0
         while i <= LASTCREATEDPANELNUMBER:
             panel = getPanel(i)
             if panel != None:
-                paneltop = panel.relative_rect.top
-                panelbottem = panel.relative_rect.bottom
-                panelleft = panel.relative_rect.left
-                panelright = panel.relative_rect.right
                 panel.kill()
-                SCREEN.fill(pygame.Color('black'), (panelleft,
-                                                paneltop,
-                                                panelright - panelleft,
-                                                panelbottem - paneltop))
+                SCREEN.fill(pygame.Color('black'), (panel.relative_rect.left,
+                                                panel.relative_rect.top,
+                                                panel.relative_rect.right - panel.relative_rect.left,
+                                                panel.relative_rect.bottom - panel.relative_rect.top))
             i += 1
 
     # verschiebt +-Button
-    SCREEN.fill(pygame.Color("black"), (ADDCOLUMNBUTTON.relative_rect.left, 
-                                    ADDCOLUMNBUTTON.relative_rect.top, 
-                                    ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left, 
-                                    ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
+    SCREEN.fill(pygame.Color('black'), (ADDCOLUMNBUTTON.relative_rect.left,
+                                        ADDCOLUMNBUTTON.relative_rect.top,
+                                        ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left,
+                                        ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
     ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
 
 def app():
@@ -134,13 +133,11 @@ def app():
                 import MidiFileLoader,Partiture
                 from mido import Message,MetaMessage
 
-                removeOldUIElements()
-
                 MIDIFILE = MidiFileLoader.loadMidiFile()
                 #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                 if MIDIFILE is not None:
                     MIDIFILE.print_tracks()
-
+                    removeOldUIElements()
                     # get loaded file name
                     FILENAME = MIDIFILE.filename
                     POSITIONSLASH = FILENAME.rfind("\\")
@@ -148,15 +145,16 @@ def app():
 
                     # dynamic creation for UIPanels to show different channels
                     createUIPanels(MIDIFILE.tracks)
-                else: MIDIFILENAME.set_text(f"File not found or cancelled")
-                
+                else: 
+                    removeLabeltext()
+                    MIDIFILENAME.set_text(f"File not found or cancelled")
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
                 if MIDIFILE is not None:
                     midiToWav.convertMidToWav(MIDIFILE)
                 else:
-                    MIDIFILENAME.rebuild()
+                    removeLabeltext()
                     MIDIFILENAME.set_text(f"Cannot convert because no MidiFile is loaded!")
      
             MANAGER.process_events(event)
