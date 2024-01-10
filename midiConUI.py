@@ -89,13 +89,17 @@ def getPanel(number):
             if element.object_ids[0] == Panel:
                 return element
 
-
-def removeOldUIElements():
-    # 'löscht' alten Filename
+def removeLabeltext():
+    # 'löscht' Labeltext
     SCREEN.fill(pygame.Color("black"), (MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.top, 
                                         MIDIFILENAME.relative_rect.right - MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
+
+def removeOldUIElements():
+    
+    removeLabeltext()
+
     # löscht alte Panels
     global LASTCREATEDPANELNUMBER
     if LASTCREATEDPANELNUMBER >= 0:
@@ -133,7 +137,7 @@ def app():
                 #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                 if MIDIFILE is not None:
                     MIDIFILE.print_tracks()
-
+                    removeOldUIElements()
                     # get loaded file name
                     FILENAME = MIDIFILE.filename
                     POSITIONSLASH = FILENAME.rfind("\\")
@@ -141,14 +145,16 @@ def app():
 
                     # dynamic creation for UIPanels to show different channels
                     createUIPanels(MIDIFILE.tracks)
-                else: MIDIFILENAME.set_text(f"File not found or cancelled")
+                else: 
+                    removeLabeltext()
+                    MIDIFILENAME.set_text(f"File not found or cancelled")
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 import midiToWav
                 if MIDIFILE is not None:
                     midiToWav.convertMidToWav(MIDIFILE)
                 else:
-                    MIDIFILENAME.rebuild()
+                    removeLabeltext()
                     MIDIFILENAME.set_text(f"Cannot convert because no MidiFile is loaded!")
      
             MANAGER.process_events(event)
