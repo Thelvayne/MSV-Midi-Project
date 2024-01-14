@@ -24,10 +24,6 @@ LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),
                                               anchors={"left":"left",
                                                        "top":"top"})
 
-#SYSTEMCOLUMN = pygame_gui.elements.UIPanel(pygame.Rect((10,60),(WIDTH-20,90)),
- #                                          manager=None,
-  #                                         anchors={"left":"left","top":"top"})
-
 ADDCOLUMNBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((WIDTH/2,180),(50,50)),
                                               text="+",
                                               manager=MANAGER,
