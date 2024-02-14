@@ -53,6 +53,15 @@ def exitApp():
     sys.exit()
 
 def createUIPanels(filetracks):
+
+    p_l_t = (0,0)
+    p_w_h = (0,0)
+    p_rect = pygame.Rect(p_l_t, p_w_h)
+    p = pygame_gui.elements.UIPanel(relative_rect=p_rect, manager=MANAGER)
+    p.background_colour.r = 255
+    p.background_colour.g = 255
+    p.background_colour.b = 255
+
     i = 0
 
     length = 0
@@ -60,13 +69,15 @@ def createUIPanels(filetracks):
         if hasattr(item, 'time'):
             length += item.time
     
-    print(length)
+    minnote, maxnote = get_min_max_notes(filetracks)
+    steps = maxnote - minnote + 1
+    container_height = steps * 10
 
     amountPanels = len(filetracks) - 1
 
     scrollableContainer_name = "CONTAINER" + str(i)
     scrollableContainer_left_top = (10,60)
-    scrollableContainer_width_height = (WIDTH-20,amountPanels*100+10)
+    scrollableContainer_width_height = (WIDTH-20, amountPanels * (container_height + 10) + 10)
     scrollableContainer_rect = pygame.Rect(scrollableContainer_left_top, scrollableContainer_width_height)
 
     scrollableContainer = pygame_gui.elements.UIScrollingContainer(
@@ -82,11 +93,13 @@ def createUIPanels(filetracks):
                                         ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left, 
                                         ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
     
+    
+    
     while i < len(filetracks) - 1:
         
         panel_name = "PANEL" + str(i)
-        panel_left_top = (0,i * 100)
-        panel_width_height = (length,90)
+        panel_left_top = (0,i * (container_height + 10))
+        panel_width_height = (length,container_height)
         panel_rect = pygame.Rect(panel_left_top, panel_width_height)
         
         panel = pygame_gui.elements.UIPanel(
@@ -97,9 +110,10 @@ def createUIPanels(filetracks):
             container=scrollableContainer,
             object_id=panel_name,
             anchors={"left":"left","top":"top"})
-        
+
         i += 1
     
+    p.kill()
     ADDCOLUMNBUTTON.set_relative_position((WIDTH/2, scrollableContainer.relative_rect.bottom + 10))
 
 def setScrollableDimensions(Width, Height):
@@ -115,7 +129,6 @@ def getContainer(number):
         if isinstance(element, pygame_gui.elements.UIScrollingContainer):
             if element.object_ids[0] == scrollableContainer:
                 return element
-    print(f"No UIScrollingContainer found with object_ids: {scrollableContainer}")  # <-- add this line
     return None
             
 def getPanel(containernr, panelnr):
@@ -164,6 +177,17 @@ def removeOldUIElements():
     ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
 
 def drawNotes(tracks):
+    
+    p_l_t = (0,0)
+    p_w_h = (0,0)
+    p_rect = pygame.Rect(p_l_t, p_w_h)
+    p = pygame_gui.elements.UIPanel(relative_rect=p_rect, manager=MANAGER)
+    p.background_colour.r = 0
+    p.background_colour.g = 0
+    p.background_colour.b = 0
+
+    minnote, maxnote = get_min_max_notes(tracks)
+
     i = 0
     while i < len(tracks) - 1:
         panel = getPanel(containernr=0, panelnr=i)
@@ -175,10 +199,9 @@ def drawNotes(tracks):
             if item.type == 'program_change':
                 offset = item.time
                 break
-        print(offset)
         i += 1
 
-        current_position = offset
+        current_position = offset     
 
         n = 0
         while n < len(track):
@@ -186,7 +209,7 @@ def drawNotes(tracks):
             if modi.type == 'note_on':
                 current_position += track[n].time
                 x = current_position
-                y = get_y_placement_for_note(track[n].note)
+                y = get_y_placement_for_note(note=track[n].note, minnote=minnote)
                 length = track[n+1].time
                 n += 2
                 current_position += length
@@ -203,46 +226,27 @@ def drawNotes(tracks):
                     container=panel,
                     anchors={"left":"left","top":"top"} 
                 )
+
             else:
                 n += 1
+    p.kill()
 
-def get_y_placement_for_note(note):
-    if note == 67:
-        return 0
-    elif note == 68:
-        return 5
-    elif note == 69:
-        return 10
-    elif note == 70:
-        return 15
-    elif note == 71:
-        return 20
-    elif note == 72:
-        return 25
-    elif note == 73:
-        return 30 
-    elif note == 74:
-        return 35 
-    elif note == 75:
-        return 40 
-    elif note == 76:
-        return 45 
-    elif note == 77:
-        return 50 
-    elif note == 78:
-        return 55                
-    elif note == 79:
-        return 60 
-    elif note == 80:
-        return 65 
-    elif note == 81:
-        return 70 
-    elif note == 82:
-        return 75 
-    elif note == 83:
-        return 80
-    else:
-        return 85
+def get_min_max_notes(tracks):
+    minnote = None
+    maxnote = None
+    for trk in tracks:
+            for item in trk:
+                if item.type == 'note_on':
+                    note = item.note
+                    if minnote == None or note < minnote:
+                        minnote = note
+                    if maxnote == None or note > maxnote:
+                        maxnote = note
+    return (minnote, maxnote)
+
+def get_y_placement_for_note(note, minnote):
+    notediff = note - minnote + 1  
+    return notediff * 10
 
 def app():
     MIDIFILE=None
@@ -279,8 +283,12 @@ def app():
                     for item in tracks[0]:
                         if hasattr(item, 'time'):
                             container_width += item.time
+                    
+                    minnote, maxnote = get_min_max_notes(MIDIFILE.tracks)
+                    steps = maxnote - minnote + 1
+
                     amount_panels = (len(MIDIFILE.tracks) - 1)
-                    container_height = (amount_panels * 90) + ((amount_panels - 1) * 10)
+                    container_height = (amount_panels * (steps*10)) + (amount_panels - 1) * 10
                     setScrollableDimensions(container_width,container_height)
                     updateDisplay()
                     drawNotes(tracks)
