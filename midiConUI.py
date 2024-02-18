@@ -2,6 +2,8 @@ import pygame
 import sys
 import pygame_gui
 import pygame.event
+import sf2_loader as sf
+import os
 
 # Initiates a Pygame Display Window
 pygame.init()
@@ -16,6 +18,11 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 # Initiating alle UI Managing Tools
 CLOCK = pygame.time.Clock() # --> This will be relevant for Playback speed and could cause conflicts with midi tempo/bpm
 MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT), 'theme.json')
+
+#os.environ["PATH"] += "D:/GitHub Repositories/MSV Midi Project/ffmpeg/ffmpeg/bin"
+LOADER = sf.sf2_loader("Soundfonts/MuseScore_General.sf2")
+
+#print(loader.all_instruments())
 
 # All UI Components
 LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),(-1,-1)),
@@ -38,6 +45,12 @@ CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160
                                                   text="Convert .mid to .wav",
                                                   manager=MANAGER,
                                                   anchors={"left":"left","top":"top"})
+
+PLAYBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((400,10),(-1,-1)),
+                                              text="Play MIDI-File",
+                                              manager=MANAGER,
+                                              anchors={"left":"left",
+                                                       "top":"top"})
 
 MIDIFILE = None
 
@@ -130,10 +143,10 @@ def app():
                 exitApp()
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
                 
-                import MidiFileLoader,Partiture
+                import MidiFileLoader,MidiPlayer
                 from mido import Message,MetaMessage
-
                 MIDIFILE = MidiFileLoader.loadMidiFile()
+                
                 #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                 if MIDIFILE is not None:
                     MIDIFILE.print_tracks()
@@ -157,6 +170,21 @@ def app():
                     removeLabeltext()
                     MIDIFILENAME.set_text(f"Cannot convert because no MidiFile is loaded!")
      
+            if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == PLAYBUTTON:
+                import MidiPlayer
+                if MIDIFILE is not None:
+                    if pygame.mixer.music.get_busy()==False:
+                        MidiPlayer.playMidi(MIDIFILE)
+                        PLAYBUTTON.set_text(f"STOP MIDI-File")
+                        
+                        LOADER.play_midi_file(current_chord=MIDIFILE.filename)
+                        #print(MIDIFILE.filename)
+                        LOADER.export_midi_file(MIDIFILE.filename,name=f"test.wav",format="wav")
+                    else:  
+                        pygame.mixer.music.pause()
+                        PLAYBUTTON.set_text(f"Play MIDI-File")
+                    #MidiPlayer.testMerge(MIDIFILE)
+                    
             MANAGER.process_events(event)
         updateDisplay()            
         #SCREEN.blit(pygame.surface(HEIGHT,WIDTH), (0, 0))
