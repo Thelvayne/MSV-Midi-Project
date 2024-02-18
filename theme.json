@@ -5,5 +5,12 @@
         {
             "normal_text":"#FFFFFF"
         }
+    },
+    "panels":
+    {
+        "misc":
+        {
+            "border_width": "0"
+        }
     }
 }
