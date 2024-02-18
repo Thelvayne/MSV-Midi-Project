@@ -104,6 +104,7 @@ def draw_notes(tracks, MANAGER):
     i = 0
     while i < len(tracks) - 1:
         panel = get_panel(containernr=0, panelnr=i, MANAGER=MANAGER)
+        panel_bottom = panel.relative_rect.height
 
         track = tracks[i+1]
 
@@ -122,12 +123,13 @@ def draw_notes(tracks, MANAGER):
             if modi.type == 'note_on':
                 current_position += track[n].time
                 x = current_position
-                y = get_y_placement_for_note(note=track[n].note, minnote=minnote)
+                y_diff_from_bottom = get_y_placement_for_note(track[n].note, minnote) + 10
+                y = panel_bottom - y_diff_from_bottom
                 length = track[n+1].time
                 n += 2
                 current_position += length
 
-                note_position = (x,y-2)
+                note_position = (x-2,y-2)
                 note_size = (length + 4, 10 + 4) # +4 because pygame_gui reserves some space for the border, but we have the border at 0, it still needs it for some reason
                 note_rect = pygame.Rect(note_position,note_size)
 
