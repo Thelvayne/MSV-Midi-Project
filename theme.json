@@ -4,6 +4,11 @@
         "colours":
         {
             "normal_text":"#FFFFFF"
+        },
+        "misc":
+        {
+            "border_width": "0",
+            "shadow_width": "0"
         }
     },
     "panels":

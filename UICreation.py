@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from UIHelperMethods import get_min_max_notes, get_panel, get_y_placement_for_note, get_note_letter
 
 def remove_label_text(SCREEN, MIDIFILENAME):
     # 'löscht' Labeltext
@@ -8,9 +9,10 @@ def remove_label_text(SCREEN, MIDIFILENAME):
                                         MIDIFILENAME.relative_rect.right - MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
 
-def remove_old_UI_elements(MANAGER, SCREEN, WIDTH, ADDCOLUMNBUTTON, MIDIFILENAME):
+def remove_old_UI_elements(MANAGER, SCREEN, WIDTH, MIDIFILENAME):
     
     remove_label_text(SCREEN, MIDIFILENAME)
+    #remove_note_names(MANAGER)
 
     # löscht alte Panels
     from UIHelperMethods import get_container, get_panel
@@ -30,15 +32,7 @@ def remove_old_UI_elements(MANAGER, SCREEN, WIDTH, ADDCOLUMNBUTTON, MIDIFILENAME
     if container != None:
         container.kill()
 
-    # verschiebt +-Button
-    SCREEN.fill(pygame.Color('black'), (ADDCOLUMNBUTTON.relative_rect.left,
-                                        ADDCOLUMNBUTTON.relative_rect.top,
-                                        ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left,
-                                        ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
-    ADDCOLUMNBUTTON.set_relative_position((WIDTH/2,180))
-
-def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH, ADDCOLUMNBUTTON):
-    from UIHelperMethods import get_min_max_notes
+def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH):
 
     p_l_t = (0,0)
     p_w_h = (0,0)
@@ -73,13 +67,6 @@ def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH, ADDCOLUMNBUTTON):
         object_id=scrollableContainer_name,
         anchors={"left":"left","top":"top"}
     )
-
-    SCREEN.fill(pygame.Color("black"), (ADDCOLUMNBUTTON.relative_rect.left, 
-                                        ADDCOLUMNBUTTON.relative_rect.top, 
-                                        ADDCOLUMNBUTTON.relative_rect.right - ADDCOLUMNBUTTON.relative_rect.left, 
-                                        ADDCOLUMNBUTTON.relative_rect.bottom - ADDCOLUMNBUTTON.relative_rect.top))
-    
-    
     
     while i < len(filetracks) - 1:
         
@@ -96,14 +83,13 @@ def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH, ADDCOLUMNBUTTON):
             container=scrollableContainer,
             object_id=panel_name,
             anchors={"left":"left","top":"top"})
-
+        
+        #write_note_names(minnote, maxnote, panel, MANAGER)
         i += 1
-    
+
     p.kill()
-    ADDCOLUMNBUTTON.set_relative_position((WIDTH/2, scrollableContainer.relative_rect.bottom + 10))
 
 def draw_notes(tracks, MANAGER):
-    from UIHelperMethods import get_min_max_notes, get_panel, get_y_placement_for_note
 
     p_l_t = (0,0)
     p_w_h = (0,0)
@@ -141,7 +127,7 @@ def draw_notes(tracks, MANAGER):
                 n += 2
                 current_position += length
 
-                note_position = (x,y)
+                note_position = (x,y-2)
                 note_size = (length + 4, 10 + 4) # +4 because pygame_gui reserves some space for the border, but we have the border at 0, it still needs it for some reason
                 note_rect = pygame.Rect(note_position,note_size)
 
@@ -157,3 +143,39 @@ def draw_notes(tracks, MANAGER):
             else:
                 n += 1
     p.kill()
+
+def write_note_names(minnote, maxnote, panel, MANAGER):
+    lft = (0,0)
+    lwh = (0,0)
+    lr = pygame.Rect(lft,lwh)
+    l = pygame_gui.elements.UILabel(relative_rect=lr, text="", manager=MANAGER)
+
+    l.text_colour.r = 100
+    l.text_colour.g = 100
+    l.text_colour.b = 100
+
+    l.set_text_scale(0.5)
+
+    note = minnote
+    while note < maxnote:
+        x = panel.relative_rect.left + 25  
+        y = get_y_placement_for_note(note, minnote)
+        text = get_note_letter(note)
+
+        label_left_top = (x, y)
+        label_width_height = (-1, 10)
+        label_rect = pygame.Rect(label_left_top, label_width_height)
+        label = pygame_gui.elements.UILabel(relative_rect=label_rect,
+                                            text=text,
+                                            manager=MANAGER)
+        label.starting_height = 5
+        
+        
+
+        note += 1
+    
+    l.text_colour.r = 255
+    l.text_colour.g = 255
+    l.text_colour.b = 255
+    
+    l.kill()

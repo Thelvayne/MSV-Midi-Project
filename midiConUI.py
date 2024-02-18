@@ -23,7 +23,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock() # --> This will be relevant for Playback speed and could cause conflicts with midi tempo/bpm
 MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT), 'theme.json')
 
-#os.environ["PATH"] += "D:/GitHub Repositories/MSV Midi Project/ffmpeg/ffmpeg/bin"
+os.environ["PATH"] += "C:/Users/Philipp/Documents/Programmierung/MSV-Midi-Project/ffmpeg/bin"
 LOADER = sf.sf2_loader("Soundfonts/MuseScore_General.sf2")
 
 #print(loader.all_instruments())
@@ -35,18 +35,12 @@ LOADFILEBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10,10),
                                               anchors={"left":"left",
                                                        "top":"top"})
 
-ADDCOLUMNBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((WIDTH/2,180),(50,50)),
-                                              text="+",
-                                              manager=MANAGER,
-                                              anchors={"left":"left",
-                                                       "top":"top"})
-
-CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160,10),(-1,-1)),
+CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((LOADFILEBUTTON.relative_rect.right + 10,10),(-1,-1)),
                                                   text="Convert .mid to .wav",
                                                   manager=MANAGER,
                                                   anchors={"left":"left","top":"top"})
 
-PLAYBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((400,10),(-1,-1)),
+PLAYBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((CONVERTTOWAVBUTTON.relative_rect.right + 10,10),(-1,-1)),
                                               text="Play MIDI-File",
                                               manager=MANAGER,
                                               anchors={"left":"left",
@@ -55,7 +49,7 @@ PLAYBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((400,10),(-1
 MIDIFILE = None
 
 
-MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((CONVERTTOWAVBUTTON.relative_rect.right + 10,10),(-1,-1)),
+MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((PLAYBUTTON.relative_rect.right + 10,10),(-1,-1)),
                                            text="",
                                            visible=1,
                                            manager=MANAGER,
@@ -94,14 +88,13 @@ def app():
 
                 MIDIFILE = MidiFileLoader.loadMidiFile()
                 
-                #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
                 if MIDIFILE is not None:
 
                     MIDIFILE.print_tracks()
 
                     # UI Part:
                     # clean up screen
-                    remove_old_UI_elements(MANAGER=MANAGER, SCREEN=SCREEN, WIDTH=WIDTH, ADDCOLUMNBUTTON=ADDCOLUMNBUTTON, MIDIFILENAME=MIDIFILENAME)
+                    remove_old_UI_elements(MANAGER=MANAGER, SCREEN=SCREEN, WIDTH=WIDTH, MIDIFILENAME=MIDIFILENAME)
 
                     # get loaded file name
                     FILENAME = MIDIFILE.filename
@@ -110,7 +103,7 @@ def app():
                     TRACKS = MIDIFILE.tracks
 
                     # dynamic creation for UIPanels to show different channels
-                    create_UIPanels(TRACKS, MANAGER=MANAGER, SCREEN=SCREEN, WIDTH=WIDTH, ADDCOLUMNBUTTON=ADDCOLUMNBUTTON)
+                    create_UIPanels(TRACKS, MANAGER=MANAGER, SCREEN=SCREEN, WIDTH=WIDTH)
                     
                     container_width = get_container_width(TRACKS)
                     container_height = get_container_height(TRACKS)
