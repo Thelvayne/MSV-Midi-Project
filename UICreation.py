@@ -56,7 +56,7 @@ def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH, ADDCOLUMNBUTTON):
             length += item.time
     
     minnote, maxnote = get_min_max_notes(filetracks)
-    steps = maxnote - minnote + 1
+    steps = maxnote - minnote + 2
     container_height = steps * 10
 
     amountPanels = len(filetracks) - 1
@@ -142,7 +142,7 @@ def draw_notes(tracks, MANAGER):
                 current_position += length
 
                 note_position = (x,y)
-                note_size = (length, 10)
+                note_size = (length + 4, 10 + 4) # +4 because pygame_gui reserves some space for the border, but we have the border at 0, it still needs it for some reason
                 note_rect = pygame.Rect(note_position,note_size)
 
                 note = pygame_gui.elements.UIPanel(
