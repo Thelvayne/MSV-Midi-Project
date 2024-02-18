@@ -2,13 +2,12 @@ import pygame
 import sys
 import pygame_gui
 import pygame.event
-<<<<<<< HEAD
+
 import sf2_loader as sf
 import os
-=======
+
 from UIHelperMethods import set_scrollable_dimensions, get_container_width, get_container_height
 from UICreation import remove_old_UI_elements, create_UIPanels, draw_notes, remove_label_text
->>>>>>> 743752cf76c8fdc83e5e9086d1403488453dc632
 
 # Initiates a Pygame Display Window
 pygame.init()
@@ -47,7 +46,6 @@ CONVERTTOWAVBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160
                                                   manager=MANAGER,
                                                   anchors={"left":"left","top":"top"})
 
-<<<<<<< HEAD
 PLAYBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((400,10),(-1,-1)),
                                               text="Play MIDI-File",
                                               manager=MANAGER,
@@ -56,8 +54,7 @@ PLAYBUTTON = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((400,10),(-1
 
 MIDIFILE = None
 
-=======
->>>>>>> 743752cf76c8fdc83e5e9086d1403488453dc632
+
 MIDIFILENAME = pygame_gui.elements.UILabel(pygame.Rect((CONVERTTOWAVBUTTON.relative_rect.right + 10,10),(-1,-1)),
                                            text="",
                                            visible=1,
@@ -84,14 +81,17 @@ def app():
                 exitApp()
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
                 
-<<<<<<< HEAD
+
                 import MidiFileLoader,MidiPlayer
                 from mido import Message,MetaMessage
-=======
+
                 import MidiFileLoader
                 #from mido import Message,MetaMessage
 
->>>>>>> 743752cf76c8fdc83e5e9086d1403488453dc632
+
+                import MidiFileLoader
+                from mido import Message,MetaMessage
+
                 MIDIFILE = MidiFileLoader.loadMidiFile()
                 
                 #PARTITURE:Partiture.Partiture = Partiture.Partiture(MIDIFILE)
@@ -136,9 +136,10 @@ def app():
                         MidiPlayer.playMidi(MIDIFILE)
                         PLAYBUTTON.set_text(f"STOP MIDI-File")
                         
-                        LOADER.play_midi_file(current_chord=MIDIFILE.filename)
+                        #LOADER.play_midi_file(current_chord=MIDIFILE.filename)
                         #print(MIDIFILE.filename)
-                        LOADER.export_midi_file(MIDIFILE.filename,name=f"test.wav",format="wav")
+                        filename = str(MIDIFILE.filename).removesuffix(".mid")
+                        LOADER.export_midi_file(MIDIFILE.filename,name=f"{filename}.wav",format="wav")
                     else:  
                         pygame.mixer.music.pause()
                         PLAYBUTTON.set_text(f"Play MIDI-File")
