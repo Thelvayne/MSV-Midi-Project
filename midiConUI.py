@@ -7,7 +7,7 @@ import sf2_loader as sf
 import os
 
 from UIHelperMethods import set_scrollable_dimensions, get_container_width, get_container_height
-from UICreation import remove_old_UI_elements, create_UIPanels, draw_notes, remove_label_text
+from UICreation import remove_old_UI_elements, create_UIPanels, draw_notes, remove_label_text, draw_graph
 
 # Initiates a Pygame Display Window
 pygame.init()
@@ -23,7 +23,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock() # --> This will be relevant for Playback speed and could cause conflicts with midi tempo/bpm
 MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT), 'theme.json')
 
-os.environ["PATH"] += "C:/Users/Philipp/Documents/Programmierung/MSV-Midi-Project/ffmpeg/bin"
+#os.environ["PATH"] += "C:/Users/Philipp/Documents/Programmierung/MSV-Midi-Project/ffmpeg/bin"
 LOADER = sf.sf2_loader("Soundfonts/MuseScore_General.sf2")
 
 #print(loader.all_instruments())
@@ -75,16 +75,7 @@ def app():
                 exitApp()
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == LOADFILEBUTTON:
                 
-
-                import MidiFileLoader,MidiPlayer
-                from mido import Message,MetaMessage
-
                 import MidiFileLoader
-                #from mido import Message,MetaMessage
-
-
-                import MidiFileLoader
-                from mido import Message,MetaMessage
 
                 MIDIFILE = MidiFileLoader.loadMidiFile()
                 
@@ -94,7 +85,8 @@ def app():
 
                     # UI Part:
                     # clean up screen
-                    remove_old_UI_elements(MANAGER=MANAGER, SCREEN=SCREEN, WIDTH=WIDTH, MIDIFILENAME=MIDIFILENAME)
+                    remove_old_UI_elements(MANAGER=MANAGER, SCREEN=SCREEN)
+                    remove_label_text(SCREEN, MIDIFILENAME)
 
                     # get loaded file name
                     FILENAME = MIDIFILE.filename
@@ -133,6 +125,9 @@ def app():
                         #print(MIDIFILE.filename)
                         filename = str(MIDIFILE.filename).removesuffix(".mid")
                         LOADER.export_midi_file(MIDIFILE.filename,name=f"{filename}.wav",format="wav")
+
+                        remove_old_UI_elements(MANAGER=MANAGER, SCREEN=SCREEN)
+                        draw_graph(f"{filename}.wav", MANAGER, SCREEN)
                     else:  
                         pygame.mixer.music.pause()
                         PLAYBUTTON.set_text(f"Play MIDI-File")
