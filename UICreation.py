@@ -29,7 +29,7 @@ def remove_old_UI_elements(MANAGER, SCREEN):
     if container != None:
         container.kill()
 
-def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH):
+def create_UIPanels(filetracks, MANAGER, WIDTH):
 
     p_l_t = (0,0)
     p_w_h = (0,0)
@@ -175,7 +175,7 @@ def write_note_names(note, panel, MANAGER):
     
     l.kill()
 
-def draw_graph(wavefilename, MANAGER, SCREEN):
+def draw_graph(wavefilename, SCREEN):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.backends.backend_agg as agg
