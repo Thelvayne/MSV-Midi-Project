@@ -53,7 +53,7 @@ def get_container_height(TRACKS):
     minnote, maxnote = get_min_max_notes(TRACKS)
     steps = maxnote - minnote + 1
     amount_panels = (len(TRACKS) - 1)
-    return (amount_panels * (steps*10)) + (amount_panels - 1) * 10
+    return amount_panels * ((steps * 10) + 10) + 20
 
 def get_note_letter(number, scale=None):
     if number < 0 | number > 127:
@@ -114,5 +114,5 @@ def get_note_letter(number, scale=None):
     temp = number - modulo
     octave = temp/12 - 1
 
-    note += str(octave)
+    note += str(int(octave))
     return note
