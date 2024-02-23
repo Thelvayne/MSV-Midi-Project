@@ -9,10 +9,7 @@ def remove_label_text(SCREEN, MIDIFILENAME):
                                         MIDIFILENAME.relative_rect.right - MIDIFILENAME.relative_rect.left, 
                                         MIDIFILENAME.relative_rect.bottom - MIDIFILENAME.relative_rect.top))
 
-def remove_old_UI_elements(MANAGER, SCREEN, WIDTH, MIDIFILENAME):
-    
-    remove_label_text(SCREEN, MIDIFILENAME)
-    #remove_note_names(MANAGER)
+def remove_old_UI_elements(MANAGER, SCREEN):
 
     # löscht alte Panels
     from UIHelperMethods import get_container, get_panel
@@ -24,11 +21,11 @@ def remove_old_UI_elements(MANAGER, SCREEN, WIDTH, MIDIFILENAME):
             break
         panel.kill()
         SCREEN.fill(pygame.Color('black'), (container.relative_rect.left,
-                                                container.relative_rect.top,
-                                                container.relative_rect.right - container.relative_rect.left,
-                                                container.relative_rect.bottom - container.relative_rect.top))
+                                            container.relative_rect.top,
+                                            container.relative_rect.right - container.relative_rect.left,
+                                            container.relative_rect.bottom - container.relative_rect.top))
         i += 1
-
+    SCREEN.fill(pygame.Color('black'), (20, 100, 800, 1900))
     if container != None:
         container.kill()
 
@@ -57,7 +54,7 @@ def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH):
 
     scrollableContainer_name = "CONTAINER" + str(i)
     scrollableContainer_left_top = (10,60)
-    scrollableContainer_width_height = (WIDTH-20, amountPanels * (container_height + 10) + 10)
+    scrollableContainer_width_height = (WIDTH-20, amountPanels * (container_height + 10) + 20)
     scrollableContainer_rect = pygame.Rect(scrollableContainer_left_top, scrollableContainer_width_height)
 
     scrollableContainer = pygame_gui.elements.UIScrollingContainer(
@@ -72,7 +69,7 @@ def create_UIPanels(filetracks, MANAGER, SCREEN, WIDTH):
         
         panel_name = "PANEL" + str(i)
         panel_left_top = (0,i * (container_height + 10))
-        panel_width_height = (length,container_height)
+        panel_width_height = (length,container_height + 10)
         panel_rect = pygame.Rect(panel_left_top, panel_width_height)
         
         panel = pygame_gui.elements.UIPanel(
@@ -121,9 +118,10 @@ def draw_notes(tracks, MANAGER):
         while n < len(track):
             modi = track[n]
             if modi.type == 'note_on':
+                note = track[n].note
                 current_position += track[n].time
                 x = current_position
-                y_diff_from_bottom = get_y_placement_for_note(track[n].note, minnote) + 10
+                y_diff_from_bottom = get_y_placement_for_note(note, minnote) + 10
                 y = panel_bottom - y_diff_from_bottom
                 length = track[n+1].time
                 n += 2
@@ -133,7 +131,7 @@ def draw_notes(tracks, MANAGER):
                 note_size = (length + 4, 10 + 4) # +4 because pygame_gui reserves some space for the border, but we have the border at 0, it still needs it for some reason
                 note_rect = pygame.Rect(note_position,note_size)
 
-                note = pygame_gui.elements.UIPanel(
+                note_panel = pygame_gui.elements.UIPanel(
                     relative_rect=note_rect,
                     starting_height=3,
                     manager=MANAGER,
@@ -142,11 +140,13 @@ def draw_notes(tracks, MANAGER):
                     anchors={"left":"left","top":"top"} 
                 )
 
+                write_note_names(note, note_panel, MANAGER)
+
             else:
                 n += 1
     p.kill()
 
-def write_note_names(minnote, maxnote, panel, MANAGER):
+def write_note_names(note, panel, MANAGER):
     lft = (0,0)
     lwh = (0,0)
     lr = pygame.Rect(lft,lwh)
@@ -156,28 +156,55 @@ def write_note_names(minnote, maxnote, panel, MANAGER):
     l.text_colour.g = 100
     l.text_colour.b = 100
 
-    l.set_text_scale(0.5)
+    x = 0 
+    y = 0
+    text = get_note_letter(note)
 
-    note = minnote
-    while note < maxnote:
-        x = panel.relative_rect.left + 25  
-        y = get_y_placement_for_note(note, minnote)
-        text = get_note_letter(note)
-
-        label_left_top = (x, y)
-        label_width_height = (-1, 10)
-        label_rect = pygame.Rect(label_left_top, label_width_height)
-        label = pygame_gui.elements.UILabel(relative_rect=label_rect,
-                                            text=text,
-                                            manager=MANAGER)
-        label.starting_height = 5
-        
-        
-
-        note += 1
+    label_left_top = (x, y)
+    label_width_height = (-1, 14)
+    label_rect = pygame.Rect(label_left_top, label_width_height)
+    label = pygame_gui.elements.UILabel(relative_rect=label_rect,
+                                        text=text,
+                                        parent_element=panel,
+                                        container=panel,
+                                        manager=MANAGER)
     
     l.text_colour.r = 255
     l.text_colour.g = 255
     l.text_colour.b = 255
     
     l.kill()
+
+def draw_graph(wavefilename, MANAGER, SCREEN):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.backends.backend_agg as agg
+    import pylab
+    from wavfile import read
+    import scipy.fft as sc
+    import numpy as np
+
+    data, samplerate, int_type = read(wavefilename)
+
+    time = len(data)/samplerate
+    spacing = 1/samplerate
+    samples = len(data)
+
+    f = sc.fftn(data)
+    xf= sc.fftfreq(samples,spacing)[:samples//2]
+
+    fig = pylab.figure()
+    ax = fig.gca()
+    ax.plot(xf, 2./samples*np.abs(f[0:samples//2]))
+
+    canvas = agg.FigureCanvasAgg(fig)
+    canvas.draw()
+    renderer = canvas.get_renderer()
+    raw_data = renderer.tostring_rgb()
+
+    size = canvas.get_width_height()
+
+    surf = pygame.image.fromstring(raw_data, size, "RGB")
+
+    dest = (20, 100)
+    SCREEN.blit(surf, dest)
