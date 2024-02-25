@@ -21,3 +21,4 @@ Bibliotheken
 + Pygame & Pygame_gui für UI-Darstellung des Programms
 + Pydub: Umwandlung von Midi-Messages in Wave-Dateien, Generierung 
 + Numpy, Scipy für weitere Signalerzeugungsmethoden
+

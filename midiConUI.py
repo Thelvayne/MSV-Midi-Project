@@ -5,6 +5,9 @@ import pygame.event
 
 import sf2_loader as sf
 
+import os
+os.environ["PATH"] += "/ffmpeg/bin"
+
 from UIHelperMethods import set_scrollable_dimensions, get_container_width, get_container_height
 from UICreation import remove_old_UI_elements, create_UIPanels, draw_notes, remove_label_text, draw_graph
 
@@ -22,8 +25,6 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 CLOCK = pygame.time.Clock() # --> This will be relevant for Playback speed and could cause conflicts with midi tempo/bpm
 MANAGER = pygame_gui.UIManager((WIDTH, HEIGHT), 'theme.json')
 
-#import os
-#os.environ["PATH"] += "C:/Users/Philipp/Documents/Programmierung/MSV-Midi-Project/ffmpeg/bin"
 LOADER = sf.sf2_loader("Soundfonts/MuseScore_General.sf2")
 
 #print(loader.all_instruments())
