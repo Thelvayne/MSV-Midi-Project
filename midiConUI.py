@@ -96,16 +96,17 @@ def app():
                     TRACKS = MIDIFILE.tracks
 
                     # dynamic creation for UIPanels to show different channels
-                    create_UIPanels(TRACKS, MANAGER=MANAGER, SCREEN=SCREEN, WIDTH=WIDTH)
+                    create_UIPanels(TRACKS, MANAGER=MANAGER, WIDTH=WIDTH)
                     
                     container_width = get_container_width(TRACKS)
                     container_height = get_container_height(TRACKS)
-                    set_scrollable_dimensions(container_width, container_height, MANAGER)
+                    set_scrollable_dimensions(container_width, container_height-10, MANAGER)
                     draw_notes(TRACKS, MANAGER)
 
-                else: 
-                    remove_label_text(SCREEN=SCREEN, MIDIFILENAME=MIDIFILENAME)
-                    MIDIFILENAME.set_text(f"File not found or cancelled")
+                else:
+                    if MIDIFILENAME.text == "":
+                        remove_label_text(SCREEN=SCREEN, MIDIFILENAME=MIDIFILENAME)
+                        MIDIFILENAME.set_text(f"File not found or cancelled")
                 
             if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == CONVERTTOWAVBUTTON:
                 if MIDIFILE is not None:
@@ -113,7 +114,7 @@ def app():
                     LOADER.export_midi_file(MIDIFILE.filename,name=f"{filename}.wav",format="wav")
                     
                     remove_old_UI_elements(MANAGER=MANAGER, SCREEN=SCREEN)
-                    draw_graph(f"{filename}.wav", MANAGER, SCREEN)
+                    draw_graph(f"{filename}.wav", SCREEN)
                 else:
                     MIDIFILENAME.set_text(f"Cannot convert because no MidiFile is loaded!")
                     

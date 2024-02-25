@@ -3,22 +3,22 @@ Midi Konvertierung: MSV-Projektarbeit
 Danny Näckel 5085033
 Philipp Jäckel 4070258
 
-Ziel
+ursprüngliche Ziele
 
 + .mid-Dateien aus einem Filebrowser in ein Python-Programm laden und anzeigen
-+ Pygame zur Realisierung der Darstellung von Midi-Messages
++ Realisierung der Darstellung von Midi-Messages
 + Konvertierung der MidiDatei in .wav mithilfe von Wavetable-Synthesizer
-+ Weitere Konvertierungsmöglichkeiten aus .wav in .Mp3, .oog
+- .wav zu .mp3 oder in anderen Formaten komprimieren
 
-Nebenziel
-+ Ggf. Editierungsmöglichkeiten per Mouseeingabe in die Mididatei
-+ Funktionen wie Neue Tracks hinzufügen könnten exponentiellen Aufwand bedeuten
-+ Funktionen wie Transposition (Tonhöhe ändern etc.)
-+ Playback Midifile, Playback Konvertierte File
+umgesetztes Nebenziel
++ Playback der MidiDatei
+- editieren der MidiDatei über UI
 
 Bibliotheken
 + MIDO: Python Library für Objektorientierte Midi-Messages
 + Pygame & Pygame_gui für UI-Darstellung des Programms
-+ Pydub: Umwandlung von Midi-Messages in Wave-Dateien, Generierung 
-+ Numpy, Scipy für weitere Signalerzeugungsmethoden
++ Pydub: Umwandlung von Midi-Messages in Wave-Dateien, Generierung mit
++ SF2-Loader: Laden von Soundfonts und Convertieren der MidiDatei
++ Numpy, Scipy, wavfile, MatPlotLib: für FFT
+
 
